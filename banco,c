@@ -1,0 +1,173 @@
+#include "banco.h"
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <ctype.h>
+
+int num_cadastros = 0;
+Cliente cadastro[MAX_CADASTROS];
+
+void inicio (){
+  /*A função inicio() apresenta as saudações ao usuário e marca o começo do software*/
+
+  printf("Seja bem vindo ao Banco QuemPoupaTem!\n\n");
+}
+
+void menu(){
+  /*A função menu() apresenta o menu em um loop infinito, até que o usuário opte por sair, digitando 0*/
+
+  printf("Abaixo, você poderá selecionar a operação que deseja seguir em seu programa conforme o seu número correspondente\n\n");
+  int operacao = 1;
+
+  do{
+    printf("1. Novo cliente\n");
+    printf("2. Apaga cliente\n");
+    printf("3. Listar clientes\n");
+    printf("4. Débito\n");
+    printf("5. Depósito\n");
+    printf("6. Extrato\n");
+    printf("7. Transferência entre contas\n");
+    printf("0. Sair\n\n");
+
+    printf("Digite o número da operação desejada: ");
+    scanf(" %d", &operacao);
+    printf("\n");
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);  /* Limpa o buffer de entrada, pois será preciso para não atrapalhar na execução das demais funções no programa */
+
+    switch(operacao){
+      case 1:
+        novo_cliente();
+          printf("\n");
+      break;
+
+      case 2:
+        apaga_cliente();
+          printf("\n");
+      break;
+
+      case 3:
+        listar_clientes();
+          printf("\n");
+      break;
+
+      case 4:
+        debito();
+          printf("\n");
+      break;
+
+      case 5:
+        deposito();
+          printf("\n");
+      break;
+
+      case 6:
+       extrato();
+          printf("\n");
+      break;
+
+      case 7:
+        transferencia();
+          printf("\n");
+      break;
+
+      case 0:
+        printf("Obrigado por utilizar os serviços do Banco QuemPoupaTem!\n");
+      break;
+
+      default:
+        printf("Por favor, escolha uma operação válida\n\n");
+    }
+
+  } while (operacao != 0);
+}
+
+
+int novo_cliente(){
+  printf("NOVO CLIENTE\n\n");
+  printf("Informe a abaixo as informações a respeito do cliente\n\n");
+  
+  if(num_cadastros >= MAX_CADASTROS) { /*Caso o número de cadastros tenha atingido o limite, não será possível prosseguir com o cadastro*/
+    printf("Não é possível cadastrar mais clientes. Limite atingido.\n\n");
+    return -1;
+}
+  
+  char nome[50]; /*Nome de até 49 caracteres*/
+  char cpf[12]; /*CPF de 11 caracteres*/
+  char conta; /*Conta de 1 caractere (Tipo A ou B)*/
+  double saldo; /*Variável saldo que suporta um número de até 64 bits*/
+  char senha[11]; /*Senha de até 10 caracteres*/
+  char buffer[50]; /*Buffer temporário para leitura*/
+  
+  printf("Digite o nome: ");
+  fgets(nome, sizeof(nome), stdin);
+  nome[strcspn(nome, "\n")] = 0; /*Remove a nova linha no final, se houver*/
+
+  printf("Digite o CPF: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;  /*Remove a nova linha no final, se houver*/
+  strcpy(cpf, buffer); /*Copia o conteúdo do buffer para cpf*/
+
+  do {
+    printf("Digite o tipo de conta (A - Comum ou B - Plus): ");
+    fgets(buffer, sizeof(buffer), stdin);
+    buffer[strcspn(buffer, "\n")] = 0;
+    conta = tolower(buffer[0]); /*Transformo o que foi digitado em minusculo para futuras verificações e não influencie no decorrer do código*/
+
+    if (conta != 'a' && conta != 'b') { /*Caso a conta não for digitado como uma das opções informadas, pedirá para o usuário digitar até que seja válido*/
+      printf("\nEntrada inválida. Por favor, digite A para Conta Comum ou B para Conta Plus.\n\n");
+    }
+  } while (conta != 'a' && conta != 'b');
+  
+  int num; /*A variável num será responsável por validar se o usuário digitou um numero e não uma letra*/
+  do {
+    printf("Digite o saldo inicial: R$ ");
+    num = scanf("%lf", &saldo);
+    while (getchar() != '\n');
+    if (num == 0) { /*Caso a variável receber alguma letra, retornará 0 que signifca falso na linguagem C, e solicitará o usuário digitar novamente*/
+      printf("\nEntrada inválida. Por favor, digite um número.\n\n");
+      }
+  } while (num == 0);
+
+
+  printf("Digite a senha: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0; /*Remove a nova linha no final, se houver*/
+  strcpy(senha, buffer); /* Copia o conteúdo do buffer para senha)*/
+  
+  strcpy(cadastro[num_cadastros].nome, nome);
+  strcpy(cadastro[num_cadastros].cpf, cpf);
+  cadastro[num_cadastros].conta = conta;
+  cadastro[num_cadastros].saldo = saldo;
+  strcpy(cadastro[num_cadastros].senha, senha);
+  cadastro[num_cadastros].num_operacoes = 0;
+
+  num_cadastros++;
+  printf("\nCliente cadastrado com sucesso!\n\n");
+
+  return 0;
+}
+
+int apaga_cliente(){
+  return printf("Ok!\n\n");
+}
+
+int listar_clientes(){
+  return printf("Ok!\n\n");
+}
+
+int debito(){
+  return printf("Ok!\n\n");
+}
+
+int deposito(){
+  return printf("Ok!\n\n");
+}
+
+int extrato(){
+  return printf("Ok!\n\n");
+}
+
+int transferencia(){
+  return printf("Ok!\n\n");
+}
