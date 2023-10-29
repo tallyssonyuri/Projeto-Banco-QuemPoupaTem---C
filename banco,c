@@ -153,8 +153,35 @@ int novo_cliente(){
   return 0;
 }
 
-int apaga_cliente(){
-  return printf("Ok!\n\n");
+int apaga_cliente() {
+  printf("DELETAR CLIENTES\n\n");
+
+  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+    printf("Nenhum cliente cadastrado.\n\n");
+    return -1;
+  }
+  
+  char cpf[12]; /*Variável que irá receber o CPF do cliente*/
+  char buffer[50]; /*Variável que receber a entrada do cliente*/
+
+  /*Seguindo a mesma lógica de demais funções, lê a entrada do usuário dentro da variável de entrada e depois a adiciona dentro da variável cpf*/
+  printf("Digite o CPF do cliente que deseja deletar: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(cpf, buffer);
+
+  for(int i = 0; i < num_cadastros; i++) { /*Esse laço de repetição percorre todos os clientes cadastrados*/
+    if(strcmp(cadastro[i].cpf, cpf) == 0) { /*Se o CPF digitado for igual ao CPF cadastrado */
+        for(int j = i; j < num_cadastros - 1; j++) { /*Move todos os CPFs cadastrados uma posição para trás, apagando assim o CPF cadastrados*/
+          cadastro[j] = cadastro[j + 1];
+        }
+        num_cadastros--; /*E a variável que armazena o numero de cadastros diminui 1 na contagem*/
+        printf("\nCliente deletado com sucesso!\n\n");
+        return 0;
+    }
+  }
+  printf("\nCliente não encontrado.\n\n"); /*Caso o laço percorrer por compelto e não achar o CPF, será informado ao usuário*/
+  return -1;
 }
 
 int listar_clientes() {
