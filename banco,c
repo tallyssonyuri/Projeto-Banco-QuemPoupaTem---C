@@ -334,6 +334,78 @@ int extrato(){
   return printf("Ok!\n\n");
 }
 
-int transferencia(){
-  return printf("Ok!\n\n");
+int transferencia() {
+  printf("TRANSFERÊNCIAS\n\n");
+
+  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+    printf("Nenhum cliente cadastrado.\n\n");
+    return -1;
+  }
+
+  char cpf_origem[12]; /*Variável que armazena o CPF de origem*/
+  char senha[11]; /*Variável que armazena a senha*/
+  char cpf_destino[12]; /*Variável que armazena o CPF do destinatário*/
+  double valor; /*Variável que armazena o valor da transferência*/
+  char buffer[50]; /*Variável que armazena a entrada dos dados*/
+  int num; /*Variável usada para condição de entrada numérica*/
+
+  /*Mesma lógica de entrada das outras funções*/
+  printf("Digite o CPF (Origem): ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(cpf_origem, buffer);
+
+  printf("Digite a senha: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(senha, buffer);
+
+  printf("Digite o CPF (Destino): ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(cpf_destino, buffer);
+
+  do { /*Mesma lógica de entrada de valor numérico de outras funções*/
+    printf("Digite o valor a ser transferido: R$ ");
+    num = scanf("%lf", &valor);
+    while (getchar() != '\n');
+    if (num == 0) {
+      printf("\nEntrada inválida. Por favor, digite um número.\n\n");
+    }
+  } while (num == 0);
+
+  int cliente_origem_indice = verifica_cpf_senha(cpf_origem, senha); /*Variável que recebe a posição do cliente da origem da transferência*/
+
+  if(cliente_origem_indice != -1) { /*Caso o CPF e senha estiverem válidos, o programa irá prosseguir*/
+    int cliente_destino_indice = verifica_cpf(cpf_destino); /*Variável que recebe a posição do cliente de destino da transferência*/
+
+    if(cliente_destino_indice != -1) { /*Caso o CPF e destino estiver correto, o programa irá prosseguir*/
+      double taxa; /*Variável que recebe o valor da taxa*/
+      double limite; /*Variável que recebe o valor do limite negativo do cliente de origem*/
+      if(strcmp(cadastro[cliente_origem_indice].conta, "Comum") == 0) { /*Caso a conta for Comum, recebe as condições abaixo*/
+        taxa = 0.05;
+        limite = -1000.0;
+      } else if(strcmp(cadastro[cliente_origem_indice].conta, "Plus") == 0) { /*Caso a conta for Plus, recebe as condições abaixo*/
+        taxa = 0.03;
+        limite = -5000.0;
+      }
+      double transferencia = valor * (1 + taxa); /*A variável transferencia recebe o valor da transferencia + a cobrança da taxa*/
+      if(cadastro[cliente_origem_indice].saldo - transferencia >= limite) { /*Se o limite negativo permitir do CPF de origem permitir a transferência junto a cobrança da taxa, o programa seguirá*/
+        cadastro[cliente_origem_indice].saldo -= transferencia; /*O saldo do cliente de origem será debitado pelo valor da transferência + cobrança da taxa*/
+        cadastro[cliente_destino_indice].saldo += valor; /*O saldo do cliente de destino será creditado pelo valor da transferência sem taxas*/
+        printf("\nTransferência realizada com sucesso! Seu novo saldo é R$ %.2f\n\n", cadastro[cliente_origem_indice].saldo); /*Indica o saldo atual do cliente de origem*/
+        return 0;
+      } else { /*Caso não for possível transferir por conta do limite negativo, informará a mensagem ao usuário*/
+        printf("\nNão foi possível realizar a transferência. O saldo ficaria abaixo do limite permitido.\n\n");
+        return -1;
+      }
+    } else { /*Caso o CPF de destino não estiver cadastrado no banco*/
+      printf("\nCPF do destinatário não encontrado.\n\n");
+      return -1;
+    }
+  } else { /*Caso o CPF ou senha de origem não estiverem de acordo*/
+    printf("\nCPF ou senha de origem incorretos.\n\n");
+    return -1;
+  }
+  return -1;
 }
