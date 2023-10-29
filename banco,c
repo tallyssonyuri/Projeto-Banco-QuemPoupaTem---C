@@ -82,7 +82,6 @@ void menu(){
   } while (operacao != 0);
 }
 
-
 int novo_cliente(){
   printf("NOVO CLIENTE\n\n");
   printf("Informe a abaixo as informações a respeito do cliente\n\n");
@@ -107,6 +106,13 @@ int novo_cliente(){
   fgets(buffer, sizeof(buffer), stdin);
   buffer[strcspn(buffer, "\n")] = 0;  /*Remove a nova linha no final, se houver*/
   strcpy(cpf, buffer); /*Copia o conteúdo do buffer para cpf*/
+
+  for(int i = 0; i < num_cadastros; i++) { /*Caso o CPF seja encontrado dentro do armazenamento, não será possível prosseguir com o novo cadastro*/
+    if(strcmp(cadastro[i].cpf, cpf) == 0) {
+      printf("\nCPF já cadastrado.\n\n");
+      return -1;
+    }
+  }
 
   do {
     printf("Digite o tipo de conta (A - Comum ou B - Plus): ");
@@ -133,7 +139,6 @@ int novo_cliente(){
       printf("\nEntrada inválida. Por favor, digite um número.\n\n");
       }
   } while (num == 0);
-
 
   printf("Digite a senha: ");
   fgets(buffer, sizeof(buffer), stdin);
@@ -202,8 +207,76 @@ int listar_clientes() {
   return 0;
 }
 
-int debito(){
-  return printf("Ok!\n\n");
+int verifica_cpf_senha(char *cpf, char *senha) { /*Essa função tem como objetivo validar se o CPF e Senha estão corretos com o cadastrado, para assim permir ou não a execução do restante do programa*/
+  for(int i = 0; i < num_cadastros; i++) {
+    if(strcmp(cadastro[i].cpf, cpf) == 0 && strcmp(cadastro[i].senha, senha) == 0) { /*Retorna 0 se amabas variáveis forem iguais, sendo o método usado para validação*/
+      return 1; /*Retorna o indice do cliente dentro do arry se o CPF e Senha estiverem corretos caso for encontrado o cadastro com essa condição*/
+    }
+  }
+  return 0; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
+}
+
+int debito() {
+  printf("DEBITO\n\n");
+
+  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+    printf("Nenhum cliente cadastrado.\n\n");
+    return -1;
+  }
+
+  char cpf[12]; /*Variável responsável pelo armazenamento do CPF*/
+  char senha[11]; /*Variável responsável pelo armazenamento da senha*/
+  double valor; /*Variável que vai recebr o valor do débito*/
+  char buffer[50]; /*Variável que recebe a entrada temporária dos usuários*/
+  int num; /*Variável para validção se o valor da transação é um número*/
+
+  /*As duas entradas abaixo seguem a mesma lógica por trás das entradas da função novo_cliente()*/
+  printf("Digite o CPF: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(cpf, buffer);
+
+  printf("Digite a senha: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(senha, buffer);
+
+  do {
+    printf("Digite o valor a ser debitado: R$ ");
+    num = scanf("%lf", &valor);
+    while (getchar() != '\n');
+    if (num == 0) {
+      printf("\nEntrada inválida. Por favor, digite um número.\n\n");
+    }
+  } while (num == 0);
+
+  int cliente_indice = verifica_cpf_senha(cpf, senha); /*A variável cliente_indice recebe a posição dentro do array que o cpf e senha foram encontrados*/
+
+  if(cliente_indice != -1) { /*E a operação só será executada se o indice for diferente de -1, que é o retorno da função verifica_cpf_senha() caso não seja encontrado a condição*/
+    double taxa; /*A variável taxa recebe o valor da taxa do cliente*/
+    double limite; /*A variável limite recebe o valor máximo de limite negativo do cliente*/
+    if(strcmp(cadastro[cliente_indice].conta, "Comum") == 0) { /*Se a conta do cliente for o mesmo que "Comum", segue as condições abaixo*/
+      taxa = 0.05;
+      limite = -1000.0;
+    } else if(strcmp(cadastro[cliente_indice].conta, "Plus") == 0) { /*Se a conta do cliente for o mesmo que "Plus", segue as condições abaixo*/
+      taxa = 0.03;
+      limite = -5000.0;
+    }
+    double debito = valor * (1 + taxa); /*O valor do débito é o resultado + a cobrança da taxa*/
+    if(cadastro[cliente_indice].saldo - debito >= limite) { /*Se o saldo - o débito não ultrapassar o liminte negativo, é possível realizar a operação*/
+      cadastro[cliente_indice].saldo -= debito;
+      printf("\nDébito realizado com sucesso! Seu novo saldo é R$ %.2f\n\n", cadastro[cliente_indice].saldo);
+      return 0;
+    } else {
+      printf("\nNão foi possível realizar o débito. O saldo ficaria abaixo do limite permitido.\n\n");
+      return -1;
+    }
+
+  } else { /*Caso a função verifica_cpf_senha() for = -1, a senha ou CPF foram informados incorretamente*/
+    printf("CPF ou senha incorretos.\n");
+    return -1;
+  }
+  return -1;
 }
 
 int deposito(){
