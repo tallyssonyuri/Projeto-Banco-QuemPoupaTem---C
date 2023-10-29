@@ -210,10 +210,19 @@ int listar_clientes() {
 int verifica_cpf_senha(char *cpf, char *senha) { /*Essa função tem como objetivo validar se o CPF e Senha estão corretos com o cadastrado, para assim permir ou não a execução do restante do programa*/
   for(int i = 0; i < num_cadastros; i++) {
     if(strcmp(cadastro[i].cpf, cpf) == 0 && strcmp(cadastro[i].senha, senha) == 0) { /*Retorna 0 se amabas variáveis forem iguais, sendo o método usado para validação*/
-      return 1; /*Retorna o indice do cliente dentro do arry se o CPF e Senha estiverem corretos caso for encontrado o cadastro com essa condição*/
+      return 1; /*Retorna o indice do cliente dentro do array se o CPF e Senha estiverem corretos caso for encontrado o cadastro com essa condição*/
     }
   }
-  return 0; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
+  return -1; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
+}
+
+int verifica_cpf(char *cpf) { /*Essa função tem como objetivo validar se o CPF está correto com o cadastrado, para assim permir ou não a execução do restante do programa*/
+  for(int i = 0; i < num_cadastros; i++) {
+    if(strcmp(cadastro[i].cpf, cpf) == 0) { /*Retorna 0 se amabas variáveis forem iguais, sendo o método usado para validação*/
+      return i; /*Retorna o indice do cliente dentro do array se o CPF estiver correto caso for encontrado o cadastro com essa condição*/
+    }
+  }
+  return -1; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
 }
 
 int debito() {
@@ -279,8 +288,46 @@ int debito() {
   return -1;
 }
 
-int deposito(){
-  return printf("Ok!\n\n");
+int deposito() {
+  printf("DEPOSITO\n\n");
+
+  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+    printf("Nenhum cliente cadastrado.\n\n");
+    return -1;
+  }
+
+  char cpf[12]; /*Variável que armazena o CPF do cliente*/
+  double valor; /*Variável que armazena o valor do depósito*/
+  char buffer[50]; /*Variável que armazena a entrada do cliente*/
+  int num; /*Variável usada para validação numérica*/
+
+  /*Mesma lógica de entrada das funções anteriores*/
+  printf("Digite o CPF: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(cpf, buffer);
+
+  do { /*Caso o valor não for um número, não será possível prosseguir atéser digitado um número*/
+    printf("Digite o valor a ser depositado: R$ ");
+    num = scanf("%lf", &valor);
+    while (getchar() != '\n');
+    if (num == 0) {
+      printf("\nEntrada inválida. Por favor, digite um número.\n\n");
+    }
+  } while (num == 0);
+
+  int cliente_indice = verifica_cpf(cpf); /*A variável cliente_indice recebe a posição do CPF encontrado dentro do array*/
+
+  if(cliente_indice != -1) { /*Se o cliente for encontrado, será adicionado a variável saldo o valor informado para o usuário*/
+    cadastro[cliente_indice].saldo += valor;
+    printf("\nDepósito realizado com sucesso! Seu novo saldo é R$ %.2f\n\n", cadastro[cliente_indice].saldo);
+    return 0;
+
+  } else { /*Caso o CPF não estiver cadastrado, será informado ao usuário*/
+    printf("CPF incorreto.\n\n");
+    return -1;
+  }
+  return -1;
 }
 
 int extrato(){

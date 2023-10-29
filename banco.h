@@ -43,6 +43,8 @@ int listar_clientes();
 
 int verifica_cpf_senha(char *cpf, char *senha);
 
+int verifica_cpf(char *cpf);
+
 int debito();
 
 int deposito();
