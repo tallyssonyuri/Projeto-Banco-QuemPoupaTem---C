@@ -274,19 +274,44 @@ int debito() {
     double debito = valor * (1 + taxa); /*O valor do débito é o resultado + a cobrança da taxa*/
     if(cadastro[cliente_indice].saldo - debito >= limite) { /*Se o saldo - o débito não ultrapassar o liminte negativo, é possível realizar a operação*/
       cadastro[cliente_indice].saldo -= debito;
+
+      if (cadastro[cliente_indice].num_operacoes == MAX_OPERACOES) { /*Se o número máximo de operações foi atingido, remova a operação mais antiga*/
+        for (int i = 0; i < cadastro[cliente_indice].num_operacoes - 1; i++) {
+          cadastro[cliente_indice].qtd_operacoes[i] = cadastro[cliente_indice].qtd_operacoes[i + 1];
+        }
+        cadastro[cliente_indice].num_operacoes--;
+      }
+
+      /*Adicione a operação ao registro de operações do cliente*/
+strcpy(cadastro[cliente_indice].qtd_operacoes[cadastro[cliente_indice].num_operacoes].tipo, "Débito");
+      cadastro[cliente_indice].qtd_operacoes[cadastro[cliente_indice].num_operacoes].valor = debito;
+      cadastro[cliente_indice].num_operacoes++;
+
+      /*Abra o arquivo para gravação*/
+      FILE *file;
+      char filename[16];
+      sprintf(filename, "%s.txt", cpf);
+      file = fopen(filename, "a");
+      if (file == NULL) {
+          printf("\nNão foi possível abrir o arquivo.\n\n");
+          return -1;
+      }
+      
+      fprintf(file, "Operação: Débito, Valor: R$ %.2f\n", debito); /*Escreve a operação no arquivo*/
+      fclose(file); /*Fecha o arquivo*/
+
       printf("\nDébito realizado com sucesso! Seu novo saldo é R$ %.2f\n\n", cadastro[cliente_indice].saldo);
       return 0;
-    } else {
+      } else {
       printf("\nNão foi possível realizar o débito. O saldo ficaria abaixo do limite permitido.\n\n");
       return -1;
-    }
+      }
 
-  } else { /*Caso a função verifica_cpf_senha() for = -1, a senha ou CPF foram informados incorretamente*/
+    } else {
     printf("CPF ou senha incorretos.\n");
     return -1;
+    }
   }
-  return -1;
-}
 
 int deposito() {
   printf("DEPOSITO\n\n");
@@ -318,20 +343,88 @@ int deposito() {
 
   int cliente_indice = verifica_cpf(cpf); /*A variável cliente_indice recebe a posição do CPF encontrado dentro do array*/
 
-  if(cliente_indice != -1) { /*Se o cliente for encontrado, será adicionado a variável saldo o valor informado para o usuário*/
+  if(cliente_indice != -1) {
     cadastro[cliente_indice].saldo += valor;
+    
+    if (cadastro[cliente_indice].num_operacoes == MAX_OPERACOES) { /*Se o número máximo de operações foi atingido, remova a operação mais antiga*/
+      for (int i = 0; i < cadastro[cliente_indice].num_operacoes - 1; i++) {
+        cadastro[cliente_indice].qtd_operacoes[i] = cadastro[cliente_indice].qtd_operacoes[i + 1];
+      }
+      cadastro[cliente_indice].num_operacoes--;
+    }
+
+    /*Adicione a operação ao registro de operações do cliente*/
+    strcpy(cadastro[cliente_indice].qtd_operacoes[cadastro[cliente_indice].num_operacoes].tipo, "Depósito");
+    cadastro[cliente_indice].qtd_operacoes[cadastro[cliente_indice].num_operacoes].valor = valor;
+    cadastro[cliente_indice].num_operacoes++;
+
+    /*Abra o arquivo para gravação*/
+    FILE *file;
+    char filename[16];
+    sprintf(filename, "%s.txt", cpf);
+    file = fopen(filename, "a");
+    if (file == NULL) {
+        printf("\nNão foi possível abrir o arquivo.\n\n");
+        return -1;
+    }
+
+    /*Escreve a operação no arquivo*/
+    fprintf(file, "Operação: Depósito, Valor: R$ %.2f\n", valor);
+    /* Feche o arquivo*/
+    fclose(file);
+
     printf("\nDepósito realizado com sucesso! Seu novo saldo é R$ %.2f\n\n", cadastro[cliente_indice].saldo);
     return 0;
 
-  } else { /*Caso o CPF não estiver cadastrado, será informado ao usuário*/
+  } else {
     printf("CPF incorreto.\n\n");
     return -1;
   }
   return -1;
-}
+  }
 
-int extrato(){
-  return printf("Ok!\n\n");
+int extrato() {
+  printf("EXTRATO\n\n");
+  printf("Informe a abaixo as informações a respeito do cliente\n\n");
+
+  char cpf[12]; /*Variável que recebe o CPF do cliente*/
+  char senha[11]; /*Variável que recebe a senha*/
+  char buffer[50]; /*A variável que recebe a entrada de dados*/
+
+  /*Entrada de dados da mesma forma que as funções anteriores*/
+  printf("Digite o CPF: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(cpf, buffer);
+
+  printf("Digite a senha: ");
+  fgets(buffer, sizeof(buffer), stdin);
+  buffer[strcspn(buffer, "\n")] = 0;
+  strcpy(senha, buffer);
+
+  int index = verifica_cpf_senha(cpf, senha); /*A variável index recebe a condição de verificação de CPF e Senha*/
+  if (index == -1) {
+    printf("\nCPF ou senha incorretos.\n\n");
+    return -1;
+  }
+
+  FILE *file; /*Declara um ponteiro para um arquivo*/
+  char filename[16]; /*Declara uma string para armazenar o nome do arquivo*/
+  sprintf(filename, "%s.txt", cpf); /*Formata o nome do arquivo com o CPF fornecido*/
+  file = fopen(filename, "r"); /*Abre o arquivo para leitura*/
+  if (file == NULL) { /*Verifica se o arquivo foi aberto corretamente*/
+    printf("\nNão foi possível abrir o arquivo de extrato.\n\n"); /*Imprime uma mensagem de erro se o arquivo não puder ser aberto*/
+    return -1;
+  }
+
+  printf("\nExtrato para CPF: %s\n\n", cpf); /*Imprime o CPF para o qual o extrato será exibido*/
+
+  char line[256]; /*Declara uma string para armazenar cada linha do arquivo*/
+  while (fgets(line, sizeof(line), file)) { /*Lê cada linha do arquivo até o final*/
+    printf("%s", line); /*Imprime a linha atual*/
+  }
+  fclose(file); /*Fecha o arquivo*/
+  return 0;
 }
 
 int transferencia() {
@@ -393,13 +486,41 @@ int transferencia() {
       if(cadastro[cliente_origem_indice].saldo - transferencia >= limite) { /*Se o limite negativo permitir do CPF de origem permitir a transferência junto a cobrança da taxa, o programa seguirá*/
         cadastro[cliente_origem_indice].saldo -= transferencia; /*O saldo do cliente de origem será debitado pelo valor da transferência + cobrança da taxa*/
         cadastro[cliente_destino_indice].saldo += valor; /*O saldo do cliente de destino será creditado pelo valor da transferência sem taxas*/
+
+        if (cadastro[cliente_origem_indice].num_operacoes == MAX_OPERACOES) {  /*Se o número máximo de operações foi atingido, remova a operação mais antiga*/
+          for (int i = 0; i < cadastro[cliente_origem_indice].num_operacoes - 1; i++) {
+            cadastro[cliente_origem_indice].qtd_operacoes[i] = cadastro[cliente_origem_indice].qtd_operacoes[i + 1];
+          }
+          cadastro[cliente_origem_indice].num_operacoes--;
+        }
+
+        /*Adiciona a operação ao registro de operações do cliente*/
+        strcpy(cadastro[cliente_origem_indice].qtd_operacoes[cadastro[cliente_origem_indice].num_operacoes].tipo, "Transferência");
+        cadastro[cliente_origem_indice].qtd_operacoes[cadastro[cliente_origem_indice].num_operacoes].valor = transferencia;
+        cadastro[cliente_origem_indice].num_operacoes++;
+
+        /*Abre o arquivo para gravação*/
+        FILE *file;
+        char filename[16];
+        sprintf(filename, "%s.txt", cpf_origem);
+        file = fopen(filename, "a");
+        if (file == NULL) {
+            printf("\nNão foi possível abrir o arquivo.\n\n");
+            return -1;
+        }
+
+        /*Escreva a operação no arquivo*/
+        fprintf(file, "Operação: Transferência para %s, Valor: R$ %.2f\n", cpf_destino, transferencia);
+        /*Feche o arquivo*/
+        fclose(file);
+      
         printf("\nTransferência realizada com sucesso! Seu novo saldo é R$ %.2f\n\n", cadastro[cliente_origem_indice].saldo); /*Indica o saldo atual do cliente de origem*/
         return 0;
-      } else { /*Caso não for possível transferir por conta do limite negativo, informará a mensagem ao usuário*/
+      } else {
         printf("\nNão foi possível realizar a transferência. O saldo ficaria abaixo do limite permitido.\n\n");
         return -1;
       }
-    } else { /*Caso o CPF de destino não estiver cadastrado no banco*/
+    } else { /*Caso não for possível transferir por conta do limite negativo, informará a mensagem ao usuário*/
       printf("\nCPF do destinatário não encontrado.\n\n");
       return -1;
     }
