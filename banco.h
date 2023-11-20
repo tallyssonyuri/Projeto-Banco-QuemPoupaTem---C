@@ -21,34 +21,25 @@ typedef struct {
 } Cliente; /*O struct Cliente é reponsável por armazenar as informações nome, cpf, conta, saldo e senha dos clientes cadastrados*/
 
 
-/*As variáveis externas abaixo são necessárias estarem declaradas dessa forma pois nas duas vezes que incluo o arquivo .h em um arquivo.c, uma cópia da variável é criada gerando erros de compilação*/
+/*Funções*/
+int novo_cliente(Cliente *cadastro, int *num_cadastros);
 
-extern int num_cadastros; /*A variável num_cadastros é responsável por contar a quantidade de cadastros já realizados*/
+int apaga_cliente(Cliente *cadastro, int *num_cadastros);
 
-extern Cliente cadastro[MAX_CADASTROS]; /*O array cadastro define a quantidade de clientes que podem ser armazenados no banco, onde cada um assumirá uma posição em ordem crescente de 0 a 999*/
+int listar_clientes(Cliente *cadastro, int *num_cadastros);
 
-/*Funções*/ 
+int verifica_cpf_senha(char *cpf, char *senha, Cliente *cadastro, int *num_cadastros);
 
-void inicio();
+int verifica_cpf(char *cpf, Cliente *cadastro, int *num_cadastros);
 
-void abertura();
+int debito(Cliente *cadastro, int *num_cadastros);
 
-void menu();
+int deposito(Cliente *cadastro, int *num_cadastros);
 
-int novo_cliente();
+int extrato(Cliente *cadastro, int *num_cadastros);
 
-int apaga_cliente();
+int transferencia(Cliente *cadastro, int *num_cadastros);
 
-int listar_clientes();
+int salvar_dados(Cliente *cadastro, int *num_cadastros, char *arquivo);
 
-int verifica_cpf_senha(char *cpf, char *senha);
-
-int verifica_cpf(char *cpf);
-
-int debito();
-
-int deposito();
-
-int extrato();
-
-int transferencia();
+int carregar_dados(Cliente *cadastro, int *num_cadastros, char *arquivo);

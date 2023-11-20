@@ -7,86 +7,12 @@
 int num_cadastros = 0;
 Cliente cadastro[MAX_CADASTROS];
 
-void inicio (){
-  /*A função inicio() apresenta as saudações ao usuário e marca o começo do software*/
 
-  printf("Seja bem vindo ao Banco QuemPoupaTem!\n\n");
-}
-
-void menu(){
-  /*A função menu() apresenta o menu em um loop infinito, até que o usuário opte por sair, digitando 0*/
-
-  printf("Abaixo, você poderá selecionar a operação que deseja seguir em seu programa conforme o seu número correspondente\n\n");
-  int operacao = 8; /*Iniciando a variável com uma opção não válida para caso o usuário não selecionar nenhuma das opções, mão colher nenhum lixo de memmória e informar que é necessário escolher algo válido para prosseguir*/
-
-  do{
-    printf("1. Novo cliente\n");
-    printf("2. Apaga cliente\n");
-    printf("3. Listar clientes\n");
-    printf("4. Débito\n");
-    printf("5. Depósito\n");
-    printf("6. Extrato\n");
-    printf("7. Transferência entre contas\n");
-    printf("0. Sair\n\n");
-
-    printf("Digite o número da operação desejada: ");
-    scanf(" %d", &operacao);
-    printf("\n");
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);  /* Limpa o buffer de entrada, pois será preciso para não atrapalhar na execução das demais funções no programa */
-
-    switch(operacao){
-      case 1:
-        novo_cliente();
-          printf("\n");
-      break;
-
-      case 2:
-        apaga_cliente();
-          printf("\n");
-      break;
-
-      case 3:
-        listar_clientes();
-          printf("\n");
-      break;
-
-      case 4:
-        debito();
-          printf("\n");
-      break;
-
-      case 5:
-        deposito();
-          printf("\n");
-      break;
-
-      case 6:
-       extrato();
-          printf("\n");
-      break;
-
-      case 7:
-        transferencia();
-          printf("\n");
-      break;
-
-      case 0:
-        printf("Obrigado por utilizar os serviços do Banco QuemPoupaTem!\n");
-      break;
-
-      default:
-        printf("Por favor, escolha uma operação válida\n\n");
-    }
-
-  } while (operacao != 0);
-}
-
-int novo_cliente(){
+int novo_cliente(Cliente *cadastro, int *num_cadastros){
   printf("NOVO CLIENTE\n\n");
   printf("Informe a abaixo as informações a respeito do cliente\n\n");
   
-  if(num_cadastros >= MAX_CADASTROS) { /*Caso o número de cadastros tenha atingido o limite, não será possível prosseguir com o cadastro*/
+  if(*num_cadastros >= MAX_CADASTROS) { /*Caso o número de cadastros tenha atingido o limite, não será possível prosseguir com o cadastro*/
     printf("Não é possível cadastrar mais clientes. Limite atingido.\n\n");
     return -1;
 }
@@ -107,7 +33,7 @@ int novo_cliente(){
   buffer[strcspn(buffer, "\n")] = 0;  /*Remove a nova linha no final, se houver*/
   strcpy(cpf, buffer); /*Copia o conteúdo do buffer para cpf*/
 
-  for(int i = 0; i < num_cadastros; i++) { /*Caso o CPF seja encontrado dentro do armazenamento, não será possível prosseguir com o novo cadastro*/
+  for(int i = 0; i < *num_cadastros; i++) { /*Caso o CPF seja encontrado dentro do armazenamento, não será possível prosseguir com o novo cadastro*/
     if(strcmp(cadastro[i].cpf, cpf) == 0) {
       printf("\nCPF já cadastrado.\n\n");
       return -1;
@@ -145,23 +71,23 @@ int novo_cliente(){
   buffer[strcspn(buffer, "\n")] = 0; /*Remove a nova linha no final, se houver*/
   strcpy(senha, buffer); /* Copia o conteúdo do buffer para senha)*/
   
-  strcpy(cadastro[num_cadastros].nome, nome);
-  strcpy(cadastro[num_cadastros].cpf, cpf);
-  strcpy(cadastro[num_cadastros].conta, conta);
-  cadastro[num_cadastros].saldo = saldo;
-  strcpy(cadastro[num_cadastros].senha, senha);
-  cadastro[num_cadastros].num_operacoes = 0;
+  strcpy(cadastro[*num_cadastros].nome, nome);
+  strcpy(cadastro[*num_cadastros].cpf, cpf);
+  strcpy(cadastro[*num_cadastros].conta, conta);
+  cadastro[*num_cadastros].saldo = saldo;
+  strcpy(cadastro[*num_cadastros].senha, senha);
+  cadastro[*num_cadastros].num_operacoes = 0;
 
-  num_cadastros++;
+  (*num_cadastros)++;
   printf("\nCliente cadastrado com sucesso!\n\n");
 
   return 0;
 }
 
-int apaga_cliente() {
+int apaga_cliente(Cliente *cadastro, int *num_cadastros) {
   printf("DELETAR CLIENTES\n\n");
 
-  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+  if(*num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
     printf("Nenhum cliente cadastrado.\n\n");
     return -1;
   }
@@ -175,12 +101,12 @@ int apaga_cliente() {
   buffer[strcspn(buffer, "\n")] = 0;
   strcpy(cpf, buffer);
 
-  for(int i = 0; i < num_cadastros; i++) { /*Esse laço de repetição percorre todos os clientes cadastrados*/
+  for(int i = 0; i < *num_cadastros; i++) { /*Esse laço de repetição percorre todos os clientes cadastrados*/
     if(strcmp(cadastro[i].cpf, cpf) == 0) { /*Se o CPF digitado for igual ao CPF cadastrado */
-        for(int j = i; j < num_cadastros - 1; j++) { /*Move todos os CPFs cadastrados uma posição para trás, apagando assim o CPF cadastrados*/
+        for(int j = i; j < *num_cadastros - 1; j++) { /*Move todos os CPFs cadastrados uma posição para trás, apagando assim o CPF cadastrados*/
           cadastro[j] = cadastro[j + 1];
         }
-        num_cadastros--; /*E a variável que armazena o numero de cadastros diminui 1 na contagem*/
+        (*num_cadastros)--; /*E a variável que armazena o numero de cadastros diminui 1 na contagem*/
         printf("\nCliente deletado com sucesso!\n\n");
         return 0;
     }
@@ -189,13 +115,13 @@ int apaga_cliente() {
   return -1;
 }
 
-int listar_clientes() {
+int listar_clientes(Cliente *cadastro, int *num_cadastros) {
   printf("CLIENTES CADASTRADOS\n\n");
-  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+  if(*num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
       printf("Nenhum cliente cadastrado.\n\n");
       return -1;
   }
-  for(int i = 0; i < num_cadastros; i++) { /*Caso for maior que 0, este laço gerará um loop que percorre o array cadastro que contém o struct com as informações dos clientes, listando elas uma a uma*/
+  for(int i = 0; i < *num_cadastros; i++) { /*Caso for maior que 0, este laço gerará um loop que percorre o array cadastro que contém o struct com as informações dos clientes, listando elas uma a uma*/
     printf("\n\n");
     printf("Cliente %d\n\n", i+1);
     printf("Nome: %s\n", cadastro[i].nome);
@@ -207,8 +133,8 @@ int listar_clientes() {
   return 0;
 }
 
-int verifica_cpf_senha(char *cpf, char *senha) { /*Essa função tem como objetivo validar se o CPF e Senha estão corretos com o cadastrado, para assim permir ou não a execução do restante do programa*/
-  for(int i = 0; i < num_cadastros; i++) {
+int verifica_cpf_senha(char *cpf, char *senha,  Cliente *cadastro, int *num_cadastros) { /*Essa função tem como objetivo validar se o CPF e Senha estão corretos com o cadastrado, para assim permir ou não a execução do restante do programa*/
+  for(int i = 0; i < *num_cadastros; i++) {
     if(strcmp(cadastro[i].cpf, cpf) == 0 && strcmp(cadastro[i].senha, senha) == 0) { /*Retorna 0 se amabas variáveis forem iguais, sendo o método usado para validação*/
       return 1; /*Retorna o indice do cliente dentro do array se o CPF e Senha estiverem corretos caso for encontrado o cadastro com essa condição*/
     }
@@ -216,8 +142,8 @@ int verifica_cpf_senha(char *cpf, char *senha) { /*Essa função tem como objeti
   return -1; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
 }
 
-int verifica_cpf(char *cpf) { /*Essa função tem como objetivo validar se o CPF está correto com o cadastrado, para assim permir ou não a execução do restante do programa*/
-  for(int i = 0; i < num_cadastros; i++) {
+int verifica_cpf(char *cpf, Cliente *cadastro, int *num_cadastros) { /*Essa função tem como objetivo validar se o CPF está correto com o cadastrado, para assim permir ou não a execução do restante do programa*/
+  for(int i = 0; i < *num_cadastros; i++) {
     if(strcmp(cadastro[i].cpf, cpf) == 0) { /*Retorna 0 se amabas variáveis forem iguais, sendo o método usado para validação*/
       return i; /*Retorna o indice do cliente dentro do array se o CPF estiver correto caso for encontrado o cadastro com essa condição*/
     }
@@ -225,10 +151,10 @@ int verifica_cpf(char *cpf) { /*Essa função tem como objetivo validar se o CPF
   return -1; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
 }
 
-int debito() {
+int debito(Cliente *cadastro, int *num_cadastros) {
   printf("DEBITO\n\n");
 
-  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+  if(*num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
     printf("Nenhum cliente cadastrado.\n\n");
     return -1;
   }
@@ -259,7 +185,7 @@ int debito() {
     }
   } while (num == 0);
 
-  int cliente_indice = verifica_cpf_senha(cpf, senha); /*A variável cliente_indice recebe a posição dentro do array que o cpf e senha foram encontrados*/
+  int cliente_indice = verifica_cpf_senha(cpf, senha, cadastro, num_cadastros); /*A variável cliente_indice recebe a posição dentro do array que o cpf e senha foram encontrados*/
 
   if(cliente_indice != -1) { /*E a operação só será executada se o indice for diferente de -1, que é o retorno da função verifica_cpf_senha() caso não seja encontrado a condição*/
     double taxa; /*A variável taxa recebe o valor da taxa do cliente*/
@@ -313,10 +239,10 @@ strcpy(cadastro[cliente_indice].qtd_operacoes[cadastro[cliente_indice].num_opera
     }
   }
 
-int deposito() {
+int deposito(Cliente *cadastro, int *num_cadastros) {
   printf("DEPOSITO\n\n");
 
-  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+  if(*num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
     printf("Nenhum cliente cadastrado.\n\n");
     return -1;
   }
@@ -341,7 +267,7 @@ int deposito() {
     }
   } while (num == 0);
 
-  int cliente_indice = verifica_cpf(cpf); /*A variável cliente_indice recebe a posição do CPF encontrado dentro do array*/
+  int cliente_indice = verifica_cpf(cpf, cadastro, num_cadastros); /*A variável cliente_indice recebe a posição do CPF encontrado dentro do array*/
 
   if(cliente_indice != -1) {
     cadastro[cliente_indice].saldo += valor;
@@ -383,7 +309,7 @@ int deposito() {
   return -1;
   }
 
-int extrato() {
+int extrato(Cliente *cadastro, int *num_cadastros) {
   printf("EXTRATO\n\n");
   printf("Informe a abaixo as informações a respeito do cliente\n\n");
 
@@ -402,7 +328,7 @@ int extrato() {
   buffer[strcspn(buffer, "\n")] = 0;
   strcpy(senha, buffer);
 
-  int index = verifica_cpf_senha(cpf, senha); /*A variável index recebe a condição de verificação de CPF e Senha*/
+  int index = verifica_cpf_senha(cpf, senha, cadastro, num_cadastros); /*A variável index recebe a condição de verificação de CPF e Senha*/
   if (index == -1) {
     printf("\nCPF ou senha incorretos.\n\n");
     return -1;
@@ -427,10 +353,10 @@ int extrato() {
   return 0;
 }
 
-int transferencia() {
+int transferencia(Cliente *cadastro, int *num_cadastros) {
   printf("TRANSFERÊNCIAS\n\n");
 
-  if(num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
+  if(*num_cadastros == 0) { /*Caso não exista nenhum usuário cadastrado, a variável num_cadastros contém 0 e será informado ao usuário quando essa condição for válida*/
     printf("Nenhum cliente cadastrado.\n\n");
     return -1;
   }
@@ -467,10 +393,10 @@ int transferencia() {
     }
   } while (num == 0);
 
-  int cliente_origem_indice = verifica_cpf_senha(cpf_origem, senha); /*Variável que recebe a posição do cliente da origem da transferência*/
+  int cliente_origem_indice = verifica_cpf_senha(cpf_origem, senha, cadastro, num_cadastros); /*Variável que recebe a posição do cliente da origem da transferência*/
 
   if(cliente_origem_indice != -1) { /*Caso o CPF e senha estiverem válidos, o programa irá prosseguir*/
-    int cliente_destino_indice = verifica_cpf(cpf_destino); /*Variável que recebe a posição do cliente de destino da transferência*/
+    int cliente_destino_indice = verifica_cpf(cpf_destino, cadastro, num_cadastros); /*Variável que recebe a posição do cliente de destino da transferência*/
 
     if(cliente_destino_indice != -1) { /*Caso o CPF e destino estiver correto, o programa irá prosseguir*/
       double taxa; /*Variável que recebe o valor da taxa*/
@@ -529,4 +455,39 @@ int transferencia() {
     return -1;
   }
   return -1;
+}
+
+int salvar_dados(Cliente *cadastro, int *num_cadastros, char *arquivo) { /* Função para salvar os dados dos clientes em um arquivo */
+  
+  FILE *file = fopen(arquivo, "wb"); /* Abre o arquivo em modo de escrita binária */
+  if (file == NULL) { /* Se o arquivo não pôde ser aberto, imprime uma mensagem de erro e retorna 1 */
+      printf("Não foi possível abrir o arquivo para gravação.\n\n");
+      return 1;
+  }
+  /* Escreve o número de cadastros no arquivo */
+  fwrite(num_cadastros, sizeof(int), 1, file);
+  /* Escreve os dados dos clientes no arquivo */
+  fwrite(cadastro, sizeof(Cliente), *num_cadastros, file);
+  /* Fecha o arquivo */
+  fclose(file);
+
+  /* Retorna 0 para indicar que a função foi executada com sucesso */
+  return 0;
+}
+
+int carregar_dados(Cliente *cadastro, int *num_cadastros, char *arquivo) { /* Função para carregar os dados dos clientes de um arquivo */
+  FILE *file = fopen(arquivo, "rb");/* Abre o arquivo em modo de leitura binária */
+  if (file == NULL) {   /* Se o arquivo não pôde ser aberto, imprime uma mensagem de erro e retorna 1 */
+      printf("Não foi possível abrir o arquivo para leitura.\n\n");
+      return 1;
+  }
+  /* Lê o número de cadastros do arquivo */
+  fread(num_cadastros, sizeof(int), 1, file);
+  /* Lê os dados dos clientes do arquivo */
+  fread(cadastro, sizeof(Cliente), *num_cadastros, file);
+  /* Fecha o arquivo */
+  fclose(file);
+
+  /* Retorna 0 para indicar que a função foi executada com sucesso */
+  return 0;
 }
