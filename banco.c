@@ -132,7 +132,7 @@ int listar_clientes(Cliente *cadastro, int *num_cadastros) {
 int verifica_cpf_senha(char *cpf, char *senha,  Cliente *cadastro, int *num_cadastros) { /*Essa função tem como objetivo validar se o CPF e Senha estão corretos com o cadastrado, para assim permir ou não a execução do restante do programa*/
   for(int i = 0; i < *num_cadastros; i++) {
     if(strcmp(cadastro[i].cpf, cpf) == 0 && strcmp(cadastro[i].senha, senha) == 0) { /*Retorna 0 se amabas variáveis forem iguais, sendo o método usado para validação*/
-      return 1; /*Retorna o indice do cliente dentro do array se o CPF e Senha estiverem corretos caso for encontrado o cadastro com essa condição*/
+      return i; /*Retorna o indice do cliente dentro do array se o CPF e Senha estiverem corretos caso for encontrado o cadastro com essa condição*/
     }
   }
   return -1; /*Retorna -1 caso um ou ambos dados não estiverem corretos*/
