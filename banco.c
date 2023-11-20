@@ -4,10 +4,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-int num_cadastros = 0;
-Cliente cadastro[MAX_CADASTROS];
-
-
 int novo_cliente(Cliente *cadastro, int *num_cadastros){
   printf("NOVO CLIENTE\n\n");
   printf("Informe a abaixo as informações a respeito do cliente\n\n");
